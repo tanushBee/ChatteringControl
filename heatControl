@@ -1,4 +1,4 @@
-model ChatteringControl
+model ChatteringControl "control strategy that doesn't chatter"
 //types
 type HeatCapacitance=Real(unit="J/K");
 type Temperature=Real(unit="K");
@@ -17,9 +17,17 @@ Temperature T;
 Heat Q;
 initial equation 
   T=Tbar+5;
+  heat=false;
 equation
-  heat=T<Tbar;
   Q=if heat then Qcapacity else 0;
   C*der(T)=Q-h*(T-Tamb);
+algorithm
+  when T<Tbar-1 then
+    heat:=true;
+  end when;
+  when T>Tbar+1 then
+    heat:=false;
+  end when;
 annotation(
-    experiment(StartTime = 0, StopTime = 1, Tolerance = 1e-6, Interval = 0.002));end ChatteringControl;
+    experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 0.002));
+end ChatteringControl;
